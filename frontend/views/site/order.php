@@ -15,40 +15,7 @@
 </head>
 <body>
 	<!-- 顶部导航 start -->
-	<div class="topnav">
-		<div class="topnav_bd w990 bc">
-			<div class="topnav_left">
-				
-			</div>
-			<div class="topnav_right fr">
-				<ul>
-					<li>您好，欢迎来到京西！[<a href="login.html">登录</a>] [<a href="register.html">免费注册</a>] </li>
-					<li class="line">|</li>
-					<li>我的订单</li>
-					<li class="line">|</li>
-					<li>客户服务</li>
-
-				</ul>
-			</div>
-		</div>
-	</div>
-	<!-- 顶部导航 end -->
-	
-	<div style="clear:both;"></div>
-	
-	<!-- 页面头部 start -->
-	<div class="header w990 bc mt15">
-		<div class="logo w990">
-			<h2 class="fl"><a href="index.html"><img src="/images/logo.png" alt="京西商城"></a></h2>
-			<div class="flow fr flow2">
-				<ul>
-					<li>1.我的购物车</li>
-					<li class="cur">2.填写核对订单信息</li>
-					<li>3.成功提交订单</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+    <?php require './public/headerlist.php'?>
 	<!-- 页面头部 end -->
 	
 	<div style="clear:both;"></div>
@@ -67,7 +34,7 @@
 				<div class="address_info">
                     <?php foreach ($address as $addre):?>
 				<p>
-					<input type="radio" name="address_id" value="<?=$addre->id?>"/>
+					<input type="radio" name="address_id" value="<?=$addre->id?>" <?=$addre->default==1?'checked="checked"':' '?>/>
                     <?=$addre->name.' '.$addre->phone.' '.$addre->cmbProvince.' '.$addre->cmbCity.' '.$addre->cmbArea.' '.$addre->address?>
                 </p>
                     <?php endforeach;?>
@@ -96,7 +63,7 @@
 							<tr <?=$id==1?'class="cur"':''?>>
 								<td>
 									<input type="radio" name="delivery_id" value="<?=$id?>" <?=$id==1?'checked="checked"':''?>/><?=$delivery[0]?></td>
-								<td>￥<?=$delivery[1]?></td>
+								<td id="delivery_money">￥<?=$delivery[1]?></td>
 								<td><?=$delivery[2]?></td>
 							</tr>
                         <?php endforeach;?>
@@ -167,13 +134,17 @@
 						</tr>	
 					</thead>
 					<tbody>
+                    <?php $price = 0;?>
+                    <?php $num = 0;?>
                         <?php foreach ($model as $good):?>
 						<tr>
 							<td class="col1"><a href=""><img src="<?=$good->logo?>" alt="" /></a>  <strong><a href=""><?=$good->name?></a></strong></td>
 							<td class="col3">￥<?=$good->shop_price?>.00</td>
 							<td class="col4"><?=$cart[$good->id]?></td>
 							<td class="col5"><span>￥<?=$cart[$good->id]*$good->shop_price?>.00</span></td>
-						</tr>
+                            <?php $price+=$cart[$good->id]*$good->shop_price?>
+						</tr><?php $num+=$cart[$good->id]?>
+                            </tr>
                         <?php endforeach;?>
 					</tbody>
 					<tfoot>
@@ -181,8 +152,8 @@
 							<td colspan="5">
 								<ul>
 									<li>
-										<span>4 件商品，总商品金额：</span>
-										<em>￥5316.00</em>
+										<span><?=$num?> 件商品，总商品金额：</span>
+										<em>￥<?=$price?>.00</em>
 									</li>
 									<li>
 										<span>返现：</span>
@@ -190,11 +161,11 @@
 									</li>
 									<li>
 										<span>运费：</span>
-										<em>￥10.00</em>
+										<em>￥<?=$delivery[1]?>.00</em>
 									</li>
 									<li>
 										<span>应付总额：</span>
-										<em>￥5076.00</em>
+										<em id="total">￥<?=$price+=$delivery[1]?>.00</em>
 									</li>
 								</ul>
 							</td>
@@ -208,7 +179,7 @@
 
 		<div class="fillin_ft">
 			<button type="submit"><span>提交订单</span></button>
-			<p>应付总额：<strong>￥5076.00元</strong></p>
+			<p>应付总额：<strong>￥<?=$price?>元</strong></p>
 			
 		</div>
 	</div>

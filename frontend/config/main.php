@@ -12,6 +12,8 @@ return [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'frontend\controllers',
     'layout'=>false,
+//    'layout'=>'headerlist',
+//    'layout1'=>'headerlist',
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-frontend',

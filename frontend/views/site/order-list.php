@@ -2,19 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-	<title>收货地址</title>
+	<title>订单页面</title>
 	<link rel="stylesheet" href="/style/base.css" type="text/css">
 	<link rel="stylesheet" href="/style/global.css" type="text/css">
 	<link rel="stylesheet" href="/style/header.css" type="text/css">
 	<link rel="stylesheet" href="/style/home.css" type="text/css">
-	<link rel="stylesheet" href="/style/address.css" type="text/css">
+	<link rel="stylesheet" href="/style/order.css" type="text/css">
 	<link rel="stylesheet" href="/style/bottomnav.css" type="text/css">
 	<link rel="stylesheet" href="/style/footer.css" type="text/css">
 
 	<script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
 	<script type="text/javascript" src="/js/header.js"></script>
 	<script type="text/javascript" src="/js/home.js"></script>
-	<script type="text/javascript" src="/js/jsAddress.js"></script>
 </head>
 <body>
 		<!-- 顶部导航 start -->
@@ -35,7 +34,7 @@
 			<div class="menu_wrap">
 				<dl>
 					<dt>订单中心 <b></b></dt>
-					<dd><b>.</b><a href="">我的订单</a></dd>
+					<dd class="cur"><b>.</b><a href="">我的订单</a></dd>
 					<dd><b>.</b><a href="">我的关注</a></dd>
 					<dd><b>.</b><a href="">浏览历史</a></dd>
 					<dd><b>.</b><a href="">我的团购</a></dd>
@@ -43,7 +42,7 @@
 
 				<dl>
 					<dt>账户中心 <b></b></dt>
-					<dd class="cur"><b>.</b><a href="">账户信息</a></dd>
+					<dd><b>.</b><a href="">账户信息</a></dd>
 					<dd><b>.</b><a href="">账户余额</a></dd>
 					<dd><b>.</b><a href="">消费记录</a></dd>
 					<dd><b>.</b><a href="">我的积分</a></dd>
@@ -62,64 +61,71 @@
 
 		<!-- 右侧内容区域 start -->
 		<div class="content fl ml10">
-			<div class="address_hd" id="box">
-				<h3>收货地址薄</h3>
-                <?php foreach ($model as $ress):?>
+			<div class="order_hd">
+				<h3>我的订单</h3>
 				<dl>
-					<dt><?=$ress->id.'.'.$ress->name.' '.$ress->cmbProvince.' '.$ress->cmbCity.' '.$ress->cmbArea.' '.$ress->address.' '.$ress->phone?></dt>
-					<dd>
-						<a href="<?=\yii\helpers\Url::to(['site/edit-address','id'=>$ress->id])?>">修改</a>
-						<a href="<?=\yii\helpers\Url::to(['site/del-address','id'=>$ress->id])?>">删除</a>
-                        <?php if ($ress->default == 1){
-                            echo \yii\helpers\Html::hiddenInput('');
-                        }else{
-                            echo \yii\helpers\Html::a('设为默认地址',['site/edit-default','id'=>$ress->id]);
-                        }?>
-					</dd>
+					<dt>便利提醒：</dt>
+					<dd>待付款（
+                        <?=count(\frontend\models\Order::find()->where(['status'=>1])->andWhere(['member_id'=>Yii::$app->user->id])->all())?>
+                        ）</dd>
+					<dd>待确认收货（0）</dd>
+					<dd>待自提（0）</dd>
 				</dl>
-                <?php endforeach;?>
 
-
+				<dl>
+					<dt>特色服务：</dt>
+					<dd><a href="">我的预约</a></dd>
+					<dd><a href="">夺宝箱</a></dd>
+				</dl>
 			</div>
 
-			<div class="address_bd mt10">
-				<h4>新增收货地址</h4>
-				<form action="<?=\yii\helpers\Url::to(['site/edit-address','id'=>$re->id])?>" id="address_form" method="post">
-						<ul>
-							<li>
-								<label for=""><span>*</span>收 货 人：</label>
-								<input type="text" name="name" class="txt" value="<?=$re->name?>"/>
-							</li>
-
-							<li>
-								<label for=""><span>*</span>所在地区：</label>
-                                <select id="cmbProvince" name="cmbProvince"></select>
-                                <select id="cmbCity" name="cmbCity"></select>
-                                <select id="cmbArea" name="cmbArea"></select>
-                                <script type="text/javascript">
-                                    addressInit('cmbProvince', 'cmbCity', 'cmbArea','<?=$re->cmbProvince?>','<?=$re->cmbCity?>','<?=$re->cmbArea?>');
-                                </script>
-							</li>
-							<li>
-								<label for=""><span>*</span>详细地址：</label>
-								<input type="text" name="address" class="txt address" value="<?=$re->address?>" />
-							</li>
-							<li>
-								<label for=""><span>*</span>手机号码：</label>
-								<input type="text" name="phone" class="txt" value="<?=$re->phone?>"/>
-							</li>
-							<li>
-								<label for="">&nbsp;</label>
-								<input type="checkbox" name="default" class="check" value="1"/>设为默认地址
-							</li>
-							<li>
-								<label for="">&nbsp;</label>
-								<input type="submit" class="btn" value="保存" />
-							</li>
-						</ul>
-					</form>
-			</div>	
-
+			<div class="order_bd mt10">
+				<table class="orders">
+					<thead>
+						<tr>
+							<th width="10%">订单号</th>
+							<th width="20%">订单商品</th>
+							<th width="10%">收货人</th>
+							<th width="20%">订单金额</th>
+							<th width="20%">下单时间</th>
+							<th width="10%">订单状态</th>
+							<th width="10%">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+                    <?php foreach ($order as $or):?>
+						<tr>
+							<td><a href=""><?=$or->id?></a></td>
+							<td>
+                                <?php foreach (
+                                    \frontend\models\OrderGoods::find()->where(['order_id'=>$or->id])->all() as $goods):?>
+                                <a href="<?=\yii\helpers\Url::to(['site/goods','id'=>$goods->goods_id])?>"><img src="<?=$goods->logo?>" alt="" /></a>
+                                <?php endforeach;?>
+                            </td>
+							<td><?=$or->name?></td>
+							<td>￥35.00 货到付款</td>
+							<td><?=date('Y-m-d H:i:s',$or->create_time)?></td>
+							<td>
+                                <?php if ($or->status==0){?>
+                                    <span>已取消</span>
+                                <?php }else if ($or->status==1){?>
+                                    <span>代付款</span>
+                                <?php }else if ($or->status==2){?>
+                                    <span>待发货</span>
+                                <?php }else if ($or->status==3){?>
+                                    <span>待收货</span>
+                                <?php }else if ($or->status==4){?>
+                                    <span>完成</span>
+                                <?php }else{?>
+                                    <span>错误</span>
+                                <?php }?>
+                            </td>
+							<td><a href="">查看</a> | <a href="">删除</a></td>
+						</tr>
+                    <?php endforeach;?>
+					</tbody> 
+				</table>
+			</div>
 		</div>
 		<!-- 右侧内容区域 end -->
 	</div>
@@ -217,16 +223,5 @@
 		</p>
 	</div>
 	<!-- 底部版权 end -->
-<!--        <script type="text/javascript">-->
-<!--//            $("#address_form").val();-->
-<!---->
-<!--            $('#address_form').on('click',function(){-->
-<!--                $('#box').show();-->
-<!--                $.getJSON('/ajax/userdata/',function(oData){-->
-<!--                    // oData = {"username":"nimojs","userid":1}-->
-<!--                    $('#info').html('用户名：' + oData.username + '<br>用户ID：' + oData.userid);-->
-<!--                })-->
-<!--            })-->
-<!--        </script>-->
 </body>
 </html>

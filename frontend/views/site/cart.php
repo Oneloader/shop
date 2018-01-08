@@ -15,40 +15,7 @@
 </head>
 <body>
 	<!-- 顶部导航 start -->
-	<div class="topnav">
-		<div class="topnav_bd w990 bc">
-			<div class="topnav_left">
-				
-			</div>
-			<div class="topnav_right fr">
-				<ul>
-					<li>您好，欢迎来到京西！[<a href="login.html">登录</a>] [<a href="register.html">免费注册</a>] </li>
-					<li class="line">|</li>
-					<li>我的订单</li>
-					<li class="line">|</li>
-					<li>客户服务</li>
-
-				</ul>
-			</div>
-		</div>
-	</div>
-	<!-- 顶部导航 end -->
-	
-	<div style="clear:both;"></div>
-	
-	<!-- 页面头部 start -->
-	<div class="header w990 bc mt15">
-		<div class="logo w990">
-			<h2 class="fl"><a href="index.html"><img src="images/logo.png" alt="京西商城"></a></h2>
-			<div class="flow fr">
-				<ul>
-					<li class="cur">1.我的购物车</li>
-					<li>2.填写核对订单信息</li>
-					<li>3.成功提交订单</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+    <?php require './public/headerlist.php'?>
 	<!-- 页面头部 end -->
 	
 	<div style="clear:both;"></div>
@@ -67,9 +34,10 @@
 				</tr>
 			</thead>
 			<tbody>
+            <?php if ($model){?>
             <?php foreach ($model as $ca):?>
 				<tr data-id="<?=$ca->id?>">
-					<td class="col1"><a href=""><img src="<?=$ca->logo?>" alt="" /></a>  <strong><a href=""><?=$ca->name?></a></strong></td>
+					<td class="col1"><a href="<?=\yii\helpers\Url::to(['site/goods','id'=>$ca->id])?>"><img src="<?=$ca->logo?>" alt="" /></a>  <strong><a href="<?=\yii\helpers\Url::to(['site/goods','id'=>$ca->id])?>"><?=$ca->name?></a></strong></td>
 					<td class="col3">￥<span><?=$ca->shop_price?></span></td>
 					<td class="col4"> 
 						<a href="javascript:;" class="reduce_num"></a>
@@ -77,9 +45,16 @@
 						<a href="javascript:;" class="add_num"></a>
 					</td>
 					<td class="col5">￥<span><?=$ca->shop_price*$cart[$ca->id]?></span></td>
-					<td class="col6"><a href="">删除</a></td>
+					<td class="col6"><a href="<?=\yii\helpers\Url::to(['site/del-cart','goods_id'=>$ca->id])?>">删除</a></td>
 				</tr>
             <?php endforeach;?>
+            <?php }else{?>
+                <tr>
+                    <td class="col3">
+                        <h1>购物车还没有商品,<a href="<?=\yii\helpers\Url::to(['site/goods'])?>">再去逛逛</a></h1>
+                    </td>
+                </tr>
+            <?php }?>
 			</tbody>
 			<tfoot>
 				<tr>

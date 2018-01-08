@@ -107,7 +107,7 @@ class SiteController extends Controller
         $good = Goods::findOne(['id'=>$id]);
         $gallery = GoodsGallery::find()->where(['goods_id'=>$id])->all();
         $intro = GoodsIntro::findOne(['goods_id'=>$id]);
-//        var_dump($gallery);exit;
+//        var_dump($good->name);exit;
         return $this->render('goods',['good'=>$good,'gallery'=>$gallery,'intro'=>$intro]);
     }
 
@@ -518,16 +518,22 @@ class SiteController extends Controller
             $model = Cart::findOne(['goods_id'=>$goods_id]);
 //            var_dump($model);exit;
             if ($model){
+//                var_dump(1);
                 $num = $model->amount+$amount;
-                Cart::updateAll(['amount'=>$num],['goods_id'=>$goods_id,'member_id'=>Yii::$app->user->identity->getId()]);
+                var_dump($num);
+                Cart::updateAll(['amount'=>$num],['goods_id'=>$goods_id,'member_id'=>Yii::$app->user->id]);
             }else{
+//                var_dump(2);
                 $model = new Cart();
-                $user = Yii::$app->user->getId();
+                $user = Yii::$app->user->id;
+//                var_dump($user);exit;
                 $model->goods_id = $goods_id;
                 $model->amount = $amount;
                 $model->member_id = $user;
+//                var_dump($model);exit;
                 $model->save();
             }
+//            die;
         }
         //跳转到购物车
         return $this->redirect(['site/cart']);
@@ -541,12 +547,18 @@ class SiteController extends Controller
             //读取cookie
             $cookies = Yii::$app->request->cookies;
             $cookie = $cookies->getValue('cart');
-            $cart = unserialize($cookie);
-            $ids = array_keys($cart);
+            if ($cookie){
+                $cart = unserialize($cookie);
+                $ids = array_keys($cart);
+            }else{
+                $cart = [];
+                $ids = [];
+            }
         }else{
             $user = Yii::$app->user->getId();
             //已登录,数据从数据表获取
             $carts = Cart::find()->where(['member_id'=>$user])->all();
+//            var_dump($carts);exit;
 //            $cart = [];
 //            foreach ($carts as $ca){
 //                $ids[] = $ca->goods_id;
@@ -602,6 +614,32 @@ class SiteController extends Controller
         }
     }
 
+    //删除购物车商品
+    public function actionDelCart($goods_id){
+        if (Yii::$app->user->isGuest){
+            //读取cookie
+            //先查看cookie,是否有商品
+            $cookies = Yii::$app->request->cookies;
+            if ($cookies->has('cart')){
+                $cookie = $cookies->getValue('cart');
+                $cart = unserialize($cookie);
+            }else{
+                $cart = [];
+            }
+            $cookies = Yii::$app->response->cookies;
+            $cookie = new Cookie();
+            $cookie->name = 'cart';
+            $cookie->value = serialize($cart);
+            $cookies->remove($cookie->name);
+//            var_dump($cookie);exit;
+
+            return $this->redirect(['site/cart']);
+        }else{
+            Cart::findOne(['goods_id'=>$goods_id])->delete();
+            return $this->redirect(['site/cart']);
+        }
+    }
+
     //订单结算页面
     public function actionOrder(){
         //判断是否登录,如果未登录,引导用户进入登录页面
@@ -615,93 +653,121 @@ class SiteController extends Controller
             $ids = ArrayHelper::map($carts,'goods_id','goods_id');
             $cart = ArrayHelper::map($carts,'goods_id','amount');
             $model = Goods::find()->where(['in','id',$ids])->all();
-            //接收用户提交数据
-            $request = Yii::$app->request;
+            if ($model){
+                //接收用户提交数据
+                $request = Yii::$app->request;
 
-            if ($request->isPost){
-                $order = new Order();
-                $order->load($request->post(),'');
-                //获取订单用户id
-                $order->member_id = Yii::$app->user->identity->getId();
-                //获取收货地址信息
-                $address = Address::findOne(['id'=>$order->address_id]);
-                $order->name = $address->name;
-                $order->province = $address->cmbProvince;
-                $order->city = $address->cmbCity;
-                $order->area = $address->cmbArea;
-                $order->area = $address->address;
-                $order->tel = $address->phone;
+                if ($request->isPost){
+                    $order = new Order();
+                    $order->load($request->post(),'');
+                    //获取订单用户id
+                    $order->member_id = Yii::$app->user->identity->getId();
+                    //获取收货地址信息
+                    $address = Address::findOne(['id'=>$order->address_id]);
+                    if($address){
+                        $order->name = $address->name;
+                        $order->province = $address->cmbProvince;
+                        $order->city = $address->cmbCity;
+                        $order->area = $address->cmbArea;
+                        $order->area = $address->address;
+                        $order->tel = $address->phone;
+                    }else{
+//                    Yii::$app->getSession()->setFlash('error', '当前用户还未拥有收货地址,请先设置一个收货地址');
+                        return $this->redirect(['site/address']);
+//                    $this->redirect( Yii::$app->getUrlManager()->createUrl(['site/address']));
+                    }
 
-                //获取配送方式
-                $order->delivery_name = Order::$deliveries[$order->delivery_id][0];
-                $order->delivery_price = Order::$deliveries[$order->delivery_id][1];
+                    //获取配送方式
+                    $order->delivery_name = Order::$deliveries[$order->delivery_id][0];
+                    $order->delivery_price = Order::$deliveries[$order->delivery_id][1];
 
-                //支付方式
-                $order->payment_name = Order::$pays[$order->payment_id][0];
+                    //支付方式
+                    $order->payment_name = Order::$pays[$order->payment_id][0];
 
-                //金额
-                $order->total = 0;
+                    //金额
+                    $order->total = 0;
 
-                //订单状态
-                $order->status = 1;
+                    //订单状态
+                    $order->status = 1;
 //                var_dump();exit;
 //                $order->save();
-                $order->create_time = time();
+                    $order->create_time = time();
 
-                //操作数据库之前开启事务
-                $transaction = Yii::$app->db->beginTransaction();
-                try{
-                    if ($order->validate()){
-                        $order->save();
-                    }
-                    //遍历购物车商品信息,依次保存
-                    $carts = Cart::find()->where(['member_id'=>$user])->all();
-                    foreach ($carts as $cart){
-                        $goods = Goods::findOne(['id'=>$cart->goods_id]);
-                        //判断库存
-                        if ($goods->stock >= $cart->amount){
-                            //库存数足够用户购买
-                            $orderGoods = new OrderGoods();
-                            $orderGoods->order_id = $order->id;
-                            $orderGoods->goods_id = $goods->id;
-                            $orderGoods->goods_name = $goods->name;
-                            $orderGoods->logo = $goods->logo;
-                            $orderGoods->price = $goods->shop_price;
-                            $orderGoods->amount = $cart->amount;
-                            $orderGoods->total = $orderGoods->price*$orderGoods->amount;
-                            $orderGoods->save();
-                            $order->total += $orderGoods->total;
-                            //扣减商品库存
-                            $goods->stock -= $cart->amount;
-                            $goods->save();
-                        }else{
-                            //库存不足用户购买 抛出异常
-                            throw new Exception('库存不足,请重新购买');
+                    //操作数据库之前开启事务
+                    $transaction = Yii::$app->db->beginTransaction();
+                    try{
+                        if ($order->validate()){
+                            $order->save();
                         }
-                    }
-                    //处理运费
-                    $order->total += $order->delivery_price;
-                    $order->save();
-                    //保存成功,清除购物车
-                    foreach ($carts as $cart){
-                        $cart->delete();
-                    }
+                        //遍历购物车商品信息,依次保存
+                        $carts = Cart::find()->where(['member_id'=>$user])->all();
+                        foreach ($carts as $cart){
+                            $goods = Goods::findOne(['id'=>$cart->goods_id]);
+                            //判断库存
+                            if ($goods->stock >= $cart->amount){
+                                //库存数足够用户购买
+                                $orderGoods = new OrderGoods();
+                                $orderGoods->order_id = $order->id;
+                                $orderGoods->goods_id = $goods->id;
+                                $orderGoods->goods_name = $goods->name;
+                                $orderGoods->logo = $goods->logo;
+                                $orderGoods->price = $goods->shop_price;
+                                $orderGoods->amount = $cart->amount;
+                                $orderGoods->total = $orderGoods->price*$orderGoods->amount;
+                                $orderGoods->save();
+                                $order->total += $orderGoods->total;
+                                //扣减商品库存
+                                $goods->stock -= $cart->amount;
+                                $goods->save();
+                            }else{
+                                //库存不足用户购买 抛出异常
+                                throw new Exception('库存不足,请重新购买');
+                            }
+                        }
+                        //处理运费
+//                        var_dump($order->total += $order->delivery_price);exit;
+                        $order->total += $order->delivery_price;
+                        $order->save();
+                        //保存成功,清除购物车
+                        foreach ($carts as $cart){
+                            $cart->delete();
+                        }
 //                    var_dump($carts);exit;
-                    //提交事务
-                    $transaction->commit();
-                }catch (Exception $exception){
-                    //回滚事务至事务开启前
-                    $transaction->rollBack();
+                        //提交事务
+                        $transaction->commit();
+                    }catch (Exception $exception){
+                        //回滚事务至事务开启前
+                        $transaction->rollBack();
+                    }
+                    //跳转至购买成功页面
+                    return $this->redirect(['site/succeed']);
                 }
-                //跳转至购买成功页面
-                return $this->redirect(['site/succeed']);
+                return $this->renderPartial('order',['address'=>$address,'model'=>$model,'cart'=>$cart]);
+            }else{
+                return $this->redirect(['site/cart']);
             }
-            return $this->renderPartial('order',['address'=>$address,'model'=>$model,'cart'=>$cart]);
         }
     }
 
     //订单成功页面
     public function actionSucceed(){
         return $this->render('succeed');
+    }
+
+    //我的订单功能
+    public function actionOrderList(){
+        $user = Yii::$app->user->id;
+        $order = Order::find()->where(['member_id'=>$user])->all();
+//        var_dump($order);exit;
+        return $this->render('order-list',['order'=>$order]);
+//        return $this->redirect(['order-list','order'=>$order]);
+    }
+
+    //搜索框搜索
+    public function actionSearch($keyword){
+//        var_dump($keyword);exit;
+        $goods = Goods::find()->where(['name'=>$keyword])->all();
+        return $this->render('search',['goods'=>$goods]);
+//        return $this->redirect(['site/goods-form','goods'=>$goods]);
     }
 }
