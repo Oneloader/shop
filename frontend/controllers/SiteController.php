@@ -185,6 +185,9 @@ class SiteController extends Controller
         return $this->render('login',['model'=>$model]);
     }
 
+    //关闭csfr验证
+    public $enableCsrfValidation=false;
+
     /**
      * Logs out the current user.
      *
