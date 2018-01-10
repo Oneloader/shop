@@ -48,9 +48,10 @@
         <div class="search fl">
             <div class="search_form">
                 <div class="form_left fl"></div>
-                <form action="<?=\yii\helpers\Url::to(['site/search'])?>" name="search" method="get" class="fl">
+                <form action="index.php" name="search" method="get" class="fl">
                     <input name="keyword" type="text" class="txt" value="请输入商品关键字"/>
                     <input type="submit" class="btn" value="搜索"/>
+                    <input type="hidden" name="r" value="site/search">
                 </form>
                 <div class="form_right fl"></div>
             </div>
