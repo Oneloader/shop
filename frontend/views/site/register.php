@@ -177,12 +177,15 @@
             $("#captcha").click(function () {
                 var sms = $(this).val();
 //                console.log(sms);
-                $.get("<?=\yii\helpers\Url::to(['site/check'])?>",{sms:sms,num:num},function (date) {
+                $.get("<?=\yii\helpers\Url::to(['site/check'])?>",{sms:sms,num:num},function (data) {
                     if (data == '短信验证码不正确'){
-                        //短信验证成功
+                        //短信验证不成功
                         console.log('短信验证不成功,重新发送并验证');
+                    }else{
+                        //短信验证成功
+                        console.log('短信验证成功');
                     }
-                });
+                },'短信验证码不正确');
 		    });
 		}
 
@@ -194,6 +197,7 @@
             for (var i = v.length - 1,h = 0;i >= 0; --i){
                 h += v.charCodeAt(i);
             }
+            console.log(h);
             return h==hash;
         },"验证码错误");
 
@@ -224,6 +228,9 @@
                     //验证码
                     checkcode:{
                         captcha:true
+                    },
+                    captcha:{
+                        captcha:true
                     }
 //                    topic: {
 //                        required: "#newsletter:checked",
@@ -245,6 +252,9 @@
                         required: "请输入密码",
                         minlength: "密码长度不能小于 5 个字母",
                         equalTo: "两次密码输入不一致"
+                    },
+                    captcha:{
+                        required: "请输入验证码"
                     },
                     email: "请输入一个正确的邮箱",
                     agree: "请接受我们的声明",

@@ -23,11 +23,10 @@
         </div>
         <div class="topnav_right fr">
             <li id="user_status">
-                <?=isset(Yii::$app->user->identity->username)?(Yii::$app->user->identity->username).'[<a href="'.\yii\helpers\Url::to(["site/logout"]).'">注销</a>]':'您好，欢迎来到京西[<a href="'.\yii\helpers\Url::to(["site/login"]).'">登录</a>] [<a href="'.\yii\helpers\Url::to(["site/register"]).'">免费注册</a>]'?>
-            </li>
+                admin[<a href="/index.php?r=site%2Flogout">注销</a>]            </li>
 
             <li class="line">|</li>
-            <li><a href="<?=\yii\helpers\Url::to(['site/order-list'])?>">我的订单</a></li>
+            <li><a href="/index.php?r=site%2Forder-list">我的订单</a></li>
             <li class="line">|</li>
             <li>客户服务</li>
 
@@ -48,7 +47,7 @@
         <div class="search fl">
             <div class="search_form">
                 <div class="form_left fl"></div>
-                <form action="<?=\yii\helpers\Url::to(['site/search'])?>" method="get" class="fl">
+                <form action="/index.php?r=site%2Fsearch" method="get" class="fl">
                     <input type="hidden" name="r" value="site/search">
                     <input name="keyword" type="text" class="txt" value="请输入商品关键字"/>
                     <input type="submit" class="btn" value="搜索"/>
@@ -78,12 +77,11 @@
                 </dt>
                 <dd>
                     <div class="prompt">
-                        <?=isset(Yii::$app->user->identity->username)?(Yii::$app->user->identity->username).'<a href="'.\yii\helpers\Url::to(["site/logout"]).'">退出</a>':'您好，请<a href="'.\yii\helpers\Url::to(["site/login"]).'">登录</a>'?>
-                    </div>
+                        admin<a href="/index.php?r=site%2Flogout">退出</a>                    </div>
                     <div class="uclist mt10">
                         <ul class="list1 fl">
                             <li><a href="">用户信息></a></li>
-                            <li><a href="<?=\yii\helpers\Url::to(['site/order-list'])?>">我的订单></a></li>
+                            <li><a href="/index.php?r=site%2Forder-list">我的订单></a></li>
                             <li><a href="">收货地址></a></li>
                             <li><a href="">我的收藏></a></li>
                         </ul>
@@ -114,7 +112,7 @@
         <div class="cart fl">
             <dl>
                 <dt>
-                    <a href="<?=\yii\helpers\Url::to(['site/cart'])?>">去购物车结算</a>
+                    <a href="/index.php?r=site%2Fcart">去购物车结算</a>
                     <b></b>
                 </dt>
                 <dd>
@@ -135,8 +133,18 @@
         <!--  商品分类部分 start-->
 
         <!--            左边商品分类栏 begin-->
-        <?php require './public/left-list.php'?>
-        <!--            左边商品分类栏 end-->
+        <div class="category fl"> <!-- 非首页，需要添加cat1类 -->
+    <div class="cat_hd">  <!-- 注意，首页在此div上只需要添加cat_hd类，非首页，默认收缩分类时添加上off类，鼠标滑过时展开菜单则将off类换成on类 -->
+        <h2>全部商品分类</h2>
+        <em></em>
+    </div>
+
+    <!--            左边商品分类栏 begin-->
+    <div class="cat_bd">
+        <div class="cat item1"><h3><a href="">手机</a><b></b></h3><div class="cat_detail"><dl class="dl_1st"><dt><a href="/index.php?r=site%2Flist&id=3">智能设备</a></dt><dd><a href="/index.php?r=site%2Flist&id=20">智能手环</a><a href="/index.php?r=site%2Flist&id=21">智能机器人</a><a href="/index.php?r=site%2Flist&id=22">智能家居</a><a href="/index.php?r=site%2Flist&id=23">健康监测</a><a href="/index.php?r=site%2Flist&id=24">无人机</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=4">运营商</a></dt><dd><a href="/index.php?r=site%2Flist&id=30">充话费/流量</a><a href="/index.php?r=site%2Flist&id=31">中国电信</a><a href="/index.php?r=site%2Flist&id=32">中国移动</a><a href="/index.php?r=site%2Flist&id=33">中国联通</a><a href="/index.php?r=site%2Flist&id=34">合约机</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=5">电子教育</a></dt><dd><a href="/index.php?r=site%2Flist&id=25">学生平板</a><a href="/index.php?r=site%2Flist&id=26">点读机</a><a href="/index.php?r=site%2Flist&id=27">录音笔</a><a href="/index.php?r=site%2Flist&id=28">电子书</a><a href="/index.php?r=site%2Flist&id=29">电子词典</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=6">手机配件</a></dt><dd><a href="/index.php?r=site%2Flist&id=15">手机壳</a><a href="/index.php?r=site%2Flist&id=16">贴膜</a><a href="/index.php?r=site%2Flist&id=17">数据线</a><a href="/index.php?r=site%2Flist&id=18">充电器</a><a href="/index.php?r=site%2Flist&id=19">耳机</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=7">手机品牌</a></dt><dd><a href="/index.php?r=site%2Flist&id=8">一加</a><a href="/index.php?r=site%2Flist&id=9">三星</a><a href="/index.php?r=site%2Flist&id=11">小米</a><a href="/index.php?r=site%2Flist&id=13">华为</a><a href="/index.php?r=site%2Flist&id=14">苹果</a></dd></dl></div></div><div class="cat "><h3><a href="">电脑</a><b></b></h3><div class="cat_detail"><dl class="dl_1st"><dt><a href="/index.php?r=site%2Flist&id=35">电脑整机</a></dt><dd><a href="/index.php?r=site%2Flist&id=40">台式机</a><a href="/index.php?r=site%2Flist&id=41">平板电脑</a><a href="/index.php?r=site%2Flist&id=42">游戏本</a><a href="/index.php?r=site%2Flist&id=43">笔记本</a><a href="/index.php?r=site%2Flist&id=44">一体机</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=36">电脑配件</a></dt><dd><a href="/index.php?r=site%2Flist&id=45">显示器</a><a href="/index.php?r=site%2Flist&id=46">CPU</a><a href="/index.php?r=site%2Flist&id=47">主板</a><a href="/index.php?r=site%2Flist&id=48">显卡</a><a href="/index.php?r=site%2Flist&id=49">硬盘</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=37">外设产品</a></dt><dd><a href="/index.php?r=site%2Flist&id=50">鼠标</a><a href="/index.php?r=site%2Flist&id=51">键盘</a><a href="/index.php?r=site%2Flist&id=52">U盘</a><a href="/index.php?r=site%2Flist&id=53">鼠标垫</a><a href="/index.php?r=site%2Flist&id=54">摄像头</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=38">游戏设备</a></dt><dd><a href="/index.php?r=site%2Flist&id=55">游戏机</a><a href="/index.php?r=site%2Flist&id=56">游戏耳机</a><a href="/index.php?r=site%2Flist&id=57">手柄</a><a href="/index.php?r=site%2Flist&id=58">游戏软件</a><a href="/index.php?r=site%2Flist&id=59">游戏周边</a></dd></dl><dl ><dt><a href="/index.php?r=site%2Flist&id=39">网络产品</a></dt><dd><a href="/index.php?r=site%2Flist&id=60">路由器</a><a href="/index.php?r=site%2Flist&id=61">网络机顶盒</a><a href="/index.php?r=site%2Flist&id=62">交换机</a><a href="/index.php?r=site%2Flist&id=63">网络储存</a><a href="/index.php?r=site%2Flist&id=64">网卡</a></dd></dl></div></div>    </div>
+    <!--            左边商品分类栏 end-->
+
+</div>        <!--            左边商品分类栏 end-->
 
         <!--  商品分类部分 end-->
 
@@ -706,7 +714,7 @@
 <!-- 底部版权 end -->
 <script type="text/javascript">
     //发送ajax请求获取用户登录状态,根据用户的登录状态改变用户状态栏的信息
-    $.getJSON("<?=\yii\helpers\Url::to(['site/user-status'])?>",function (json) {
+    $.getJSON("/index.php?r=site%2Fuser-status",function (json) {
         if (json.is_login){
             $("#user_status").html('欢迎'+json.username+'登录京西商城[注销]');
         }

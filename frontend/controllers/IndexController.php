@@ -15,4 +15,6 @@ class IndexController extends Controller{
         $model = Index::find()->all();
         return $this->render('register',['model'=>$model]);
     }
+
+
 }

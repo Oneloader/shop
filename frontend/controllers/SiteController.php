@@ -9,10 +9,12 @@ use backend\models\GoodsIntro;
 use backend\models\Member;
 use Codeception\Module\Redis;
 use backend\models\Address;
+use common\models\SphinxClient;
 use frontend\models\Order;
 use frontend\models\OrderGoods;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\data\Pagination;
 use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
@@ -76,7 +78,31 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        //ob缓存
+        //开启ob缓存
+//        ob_start();
+//        //获取on缓存中的内容
+//        $contents = ob_get_contents();
+        $contents = $this->render('index');
+        //将缓存内容保存到一个静态页面
+        file_put_contents('index.html',$contents);
+        return  $this->redirect('index.html');
+    }
+
+    //获取用户登录状态
+    public function actionUserStatus(){
+        if (Yii::$app->user->isGuest){
+            $result = [
+                'is_login'=>false,
+                'username'=>null
+        ];
+        }else{
+            $result = [
+                'is_login'=>true,
+                'username'=>Yii::$app->user->identity->username
+            ];
+        }
+        return json_encode($result);
     }
 
     /**
@@ -104,11 +130,22 @@ class SiteController extends Controller
 
     //商品详情页面
     public function actionGoods($id){
+
         $good = Goods::findOne(['id'=>$id]);
         $gallery = GoodsGallery::find()->where(['goods_id'=>$id])->all();
         $intro = GoodsIntro::findOne(['goods_id'=>$id]);
 //        var_dump($good->name);exit;
-        return $this->render('goods',['good'=>$good,'gallery'=>$gallery,'intro'=>$intro]);
+//        return $this->render('goods',['good'=>$good,'gallery'=>$gallery,'intro'=>$intro]);
+        //ob缓存
+        //开启ob缓存
+//        ob_start();
+//        //获取on缓存中的内容
+//        $contents = ob_get_contents();
+        $contents = $this->render('goods',['good'=>$good,'gallery'=>$gallery,'intro'=>$intro]);
+        //将缓存内容保存到一个静态页面
+        file_put_contents('goods.html',$contents);
+//        return $contents;
+        return $this->redirect('goods.html');
     }
 
     /**
@@ -128,7 +165,7 @@ class SiteController extends Controller
             if ($model->validate()) {
                 $model->password_hash = Yii::$app->security->generatePasswordHash($model->password_hash);
                 $model->save();
-                return $this->redirect(['index']);
+                return $this->redirect(['login']);
             } else {
                 var_dump($model->getErrors());
                 exit;
@@ -305,6 +342,8 @@ class SiteController extends Controller
 
     //阿里大鱼短信功能
     public function actionSms($num){
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1');
 //        var_dump($num);exit;
         //正则表达式 验证电话号码
         if(strlen($num) == "11")
@@ -314,14 +353,18 @@ class SiteController extends Controller
 //            var_dump($n); exit;//看看是不是找到了,如果找到了,就会输出电话号码的
             //        return '电话号码不正确';
             if ($n == 1){
+                //检查同一手机号码上次发送时间的间隔
+                $ttl = $redis->ttl('code_'.$num);
+                if($ttl && $ttl > (30*60-60)){
+                    echo '距离上一次短信发送不到60秒,请'.($ttl+60-1800).'秒后重试';
+                    exit;
+                };
                 $code = rand(100000,999999);
                 $result = Yii::$app->sms->send($num,['code'=>$code]);
 //                var_dump($result);exit;
                 if ($result->Code == 'OK'){
                     //短信发送成功
-                    $redis = new \Redis();
-                    $redis->connect('127.0.0.1');
-                    $redis->set('code_'.$num,$code,5*60);
+                    $redis->set('code_'.$num,$code,30*60);
                     return 'true';
                 }else{
                     //短信发送失败
@@ -740,6 +783,17 @@ class SiteController extends Controller
                         $transaction->rollBack();
                     }
                     //跳转至购买成功页面
+                    $user_id = Yii::$app->user->id;
+                    $user = Member::findOne(['id'=>$user_id]);
+                    Yii::$app->mailer->compose()
+                        ->setFrom('wd1037757846@163.com')
+                        ->setTo($user->email)
+                        ->setSubject('您的京西账户下单成功')
+                        ->setHtmlBody('
+            <span style="color: red">尊敬的用户：</span><br>&emsp;&emsp;您已下单成功，您的商品已经在准备了，请您稍等。您已激活 18140191539@163.com ，<br>并成功绑定到 18140191539@163.com 。您能使用其中任一个帐号来登录和收发邮件，其中<br>手机号码邮箱的登录密码和 18140191539@163.com 的密码相同。<br>
+
+　　为了方便您使用邮箱，建议您安装 邮箱大师 ，不仅能随时随地收发邮件，还有最快的新邮件免费提醒等功能哦！')
+                        ->send();
                     return $this->redirect(['site/succeed']);
                 }
                 return $this->renderPartial('order',['address'=>$address,'model'=>$model,'cart'=>$cart]);
@@ -765,9 +819,78 @@ class SiteController extends Controller
 
     //搜索框搜索
     public function actionSearch($keyword){
+        $cl = new SphinxClient();
+        $cl->SetServer ( '127.0.0.1', 9312);
+
+        $cl->SetConnectTimeout ( 10 );
+        $cl->SetArrayResult ( true );
+// $cl->SetMatchMode ( SPH_MATCH_ANY);
+        $cl->SetMatchMode ( SPH_MATCH_EXTENDED2);
+        $cl->SetLimits(0, 1000);
+        $info = $keyword;//查询关键字.
+        $res = $cl->Query($info, 'mysql');//查询用到的索引名称
+//print_r($cl);
+//        print_r($res);exit;
+        $ids = [];
+        if (isset($res['matches'])){
+            foreach ($res['matches'] as $math){
+                $ids[] = $math['id'];
+            }
+        }
 //        var_dump($keyword);exit;
-        $goods = Goods::find()->where(['name'=>$keyword])->all();
-        return $this->render('search',['goods'=>$goods]);
+        $model = Goods::find()->where(['in','id',$ids])->count();
+        $pager = new Pagination([
+            'totalCount'=>$model,
+            'defaultPageSize'=>10,
+        ]);
+        $goods = Goods::find()->limit($pager->limit)->offset($pager->offset)->andWhere(['in','id',$ids])->all();
+        return $this->render('search',['goods'=>$goods,'pager'=>$pager]);
 //        return $this->redirect(['site/goods-form','goods'=>$goods]);
+    }
+
+    //发送邮件
+    public function actionEmail(){
+        $result = Yii::$app->mailer->compose()
+            ->setFrom('wd1037757846@163.com')
+            ->setTo('wd1037757846@163.com')
+            ->setSubject('您的京西账户注册成功')
+            ->setHtmlBody('
+            <span style="color: red">尊敬的用户：</span><br>
+
+　　您已激活 18140191539@163.com ，并成功绑定到 m18140191539@163.com 。您能使用其中任一个帐号来登录和收发邮件，其中手机号码邮箱的登录密码和 m18140191539@163.com 的密码相同。
+
+　　为了方便您使用邮箱，建议您安装 邮箱大师 ，不仅能随时随地收发邮件，还有最快的新邮件免费提醒等功能哦！')
+            ->send();
+        var_dump($result);
+    }
+
+    //redis练习
+    public function actionHome(){
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1');
+        $redis->set('name','张三',30);
+        $redis->set('age','18');
+        $name = $redis->get('name');
+        $age = $redis->get('age');
+        if (empty($name)){
+            $age -= 1;
+            $redis->set('age',$age);
+        }
+        var_dump($age);exit;
+    }
+
+    public function actionTest(){
+        $cl = new SphinxClient();
+        $cl->SetServer ( '127.0.0.1', 9312);
+
+        $cl->SetConnectTimeout ( 10 );
+        $cl->SetArrayResult ( true );
+// $cl->SetMatchMode ( SPH_MATCH_ANY);
+        $cl->SetMatchMode ( SPH_MATCH_EXTENDED2);
+        $cl->SetLimits(0, 1000);
+        $info = '小米6';//查询关键字.
+        $res = $cl->Query($info, 'mysql');//查询用到的索引名称
+//print_r($cl);
+        print_r($res);
     }
 }
