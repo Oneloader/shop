@@ -86,8 +86,10 @@
         <div class="search fl">
             <div class="search_form">
                 <div class="form_left fl"></div>
-                <form action="" name="serarch" method="get" class="fl">
-                    <input type="text" class="txt" value="请输入商品关键字" /><input type="submit" class="btn" value="搜索" />
+                <form action="/index.php?r=site%2Fsearch" method="get" class="fl">
+                    <input type="hidden" name="r" value="site/search">
+                    <input name="keyword" type="text" class="txt" value="请输入商品关键字"/>
+                    <input type="submit" class="btn" value="搜索"/>
                 </form>
                 <div class="form_right fl"></div>
             </div>
@@ -313,14 +315,14 @@
 		<div class="goods_content fl mt10 ml10">
 			<!-- 商品概要信息 start -->
 			<div class="summary">
-				<h3><strong>三星 Galaxy S8</strong></h3>
-                <input type="hidden" value="115" id="goods_id">
+				<h3><strong>小米6 全网通 4GB+64GB 亮黑色</strong></h3>
+                <input type="hidden" value="114" id="goods_id">
 				
 				<!-- 图片预览区域 start -->
 				<div class="preview fl">
 					<div class="midpic">
-						<a href="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b40f54fca8.jpg" class="jqzoom" rel="gal1">   <!-- 第一幅图片的大图 class 和 rel属性不能更改 -->
-							<img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b40f54fca8.jpg" alt="" width="350px"/>
+						<a href="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b3b4c5fba6.jpg" class="jqzoom" rel="gal1">   <!-- 第一幅图片的大图 class 和 rel属性不能更改 -->
+							<img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b3b4c5fba6.jpg" alt="" width="350px"/>
                             <!-- 第一幅图片的中图 -->
 						</a>
 					</div>
@@ -333,7 +335,16 @@
 						<div class="smallpic_wrap">
 							<ul>
 								<li class="cur">
-									<a class="zoomThumbActive" href="javascript:void(0);" rel="{gallery: 'gal1', smallimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b40f54fca8.jpg',largeimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b40f54fca8.jpg'}"><img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b40f54fca8.jpg"></a>
+									<a class="zoomThumbActive" href="javascript:void(0);" rel="{gallery: 'gal1', smallimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b3b4c5fba6.jpg',largeimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b3b4c5fba6.jpg'}"><img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4b3b4c5fba6.jpg"></a>
+								</li>
+                                								<li>
+									<a href="javascript:void(0);" rel="{gallery: 'gal1', smallimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e36e965c50.jpg',largeimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e36e965c50.jpg'}"><img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e36e965c50.jpg"></a>
+								</li>
+                                								<li>
+									<a href="javascript:void(0);" rel="{gallery: 'gal1', smallimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e3708ebabc.jpg',largeimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e3708ebabc.jpg'}"><img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e3708ebabc.jpg"></a>
+								</li>
+                                								<li>
+									<a href="javascript:void(0);" rel="{gallery: 'gal1', smallimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e371fbf2cf.jpg',largeimage: 'http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e371fbf2cf.jpg'}"><img src="http://p1bgfgwn5.bkt.clouddn.com//upload/5a4e371fbf2cf.jpg"></a>
 								</li>
                                 							</ul>
 						</div>
@@ -345,11 +356,11 @@
 				<!-- 商品基本信息区域 start -->
 				<div class="goodsinfo fl ml10">
 					<ul>
-						<li><span>商品编号： </span>2018010200005</li>
-						<li class="market_price"><span>定价：</span><em>￥5688</em></li>
-						<li class="shop_price"><span>本店价：</span> <strong>￥5688</strong> <a href="">(降价通知)</a></li>
+						<li><span>商品编号： </span>2018010200004</li>
+						<li class="market_price"><span>定价：</span><em>￥2499</em></li>
+						<li class="shop_price"><span>本店价：</span> <strong>￥2499</strong> <a href="">(降价通知)</a></li>
 						<li><span>上架时间：</span>2018-01-02</li>
-						<li class="star"><span>商品评分：</span> <strong></strong><span id="views">(已有166人浏览)</span></li> <!-- 此处的星级切换css即可 默认为5星 star4 表示4星 star3 表示3星 star2表示2星 star1表示1星 -->
+						<li class="star"><span>商品评分：</span> <strong></strong><span id="views">(已有303人浏览)</span></li> <!-- 此处的星级切换css即可 默认为5星 star4 表示4星 star3 表示3星 star2表示2星 star1表示1星 -->
 					</ul>
 					<form action="/index.php?r=site%2Fadd-to-cart" method="get" class="choose">
 						<ul>
@@ -370,7 +381,7 @@
 									<dt>&nbsp;</dt>
 									<dd>
                                         <input type="hidden" name="r" value="site/add-to-cart">
-                                        <input type="hidden" name="goods_id" value="115">
+                                        <input type="hidden" name="goods_id" value="114">
 										<input type="submit" value="" class="add_btn" />
 									</dd>
 								</dl>

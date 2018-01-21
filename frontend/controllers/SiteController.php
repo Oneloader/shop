@@ -143,9 +143,9 @@ class SiteController extends Controller
 //        $contents = ob_get_contents();
         $contents = $this->render('goods',['good'=>$good,'gallery'=>$gallery,'intro'=>$intro]);
         //将缓存内容保存到一个静态页面
-        file_put_contents('goods.html',$contents);
+        file_put_contents('goods_'.$id.'.html',$contents);
 //        return $contents;
-        return $this->redirect('goods.html');
+        return $this->redirect('goods_'.$id.'.html');
     }
 
     /**

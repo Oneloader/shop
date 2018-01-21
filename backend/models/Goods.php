@@ -10,7 +10,7 @@ class Goods extends ActiveRecord{
     {
         return [
             [['sn','goods_category_id','brand_id','market_price','shop_price','stock','is_on_sale','status','sort','create_time','view_times'],'integer'],
-            [['name'],'string','max'=>20],
+            [['name'],'string','max'=>150],
             [['logo'],'string','max'=>255],
         ];
     }

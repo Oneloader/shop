@@ -45,15 +45,15 @@ return [
             'sk'=>'snDECz7a8sknPyFKxO3XrmydpGhp4A',
             'sign'=>'老王超市',
             'template'=>'SMS_120125289'
-        ]
-        /*
+        ],
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];
